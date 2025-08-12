@@ -366,7 +366,7 @@ def annotate():
                     replace(',','  ').\
                     replace('[(', f'\n\n# ANNOTATOR = {st.session_state.USER if 'USER' in st.session_state else 'ANONYMOUS'}\n# Text = {text}\n').\
                     replace('@#$%', ',').\
-                    replace('   ', '  ')
+                    replace('   ', '\t')
                     
                     if 'CONLLU' not in st.session_state:
                         st.session_state.CONLLU = new
