@@ -225,6 +225,13 @@ def annotate():
                     else:
                         del st.session_state.USER
                         st.session_state.USER = user
+        source  = st.text_input('WHERE ARE YOU SOURCING YOUR SENTENCE FROM? Leave blank if you are baking this straight off your head!', help='This is for integrity. Leave as blank if the sentence you are annotating is straight off your brain.')
+        if source:
+            if 'SOURCE' not in st.session_state:
+                st.session_state.SOURCE = source
+            else:
+                del st.session_state.SOURCE
+                SOURCE = st.session_state.SOURCE = source
 
     st.write(f'**Hello {st.session_state.USER if 'USER' in st.session_state else '🥷🏽'},** DO NOT LEAVE THIS PAGE WHILE ANNOTATING TO AVOID THE RISK OF LOOSING YOUR DATA!')
     file_bool = st.toggle('DO YOU WANT TO ADD TO EXISTING FILE(S)?'.capitalize())
@@ -364,7 +371,7 @@ def annotate():
                     replace('12!@','\'').\
                     replace(',,', '@#$%  ').\
                     replace(',','  ').\
-                    replace('[(', f'\n\n# ANNOTATOR = {st.session_state.USER if 'USER' in st.session_state else 'ANONYMOUS'}\n# Text = {text}\n').\
+                    replace('[(', f'\n\n# ANNOTATOR = {st.session_state.USER if 'USER' in st.session_state else 'ANONYMOUS'}\n# Text = {text}\n# Ref = {st.session_state.SOURCE if 'SOURCE' in st.session_state else 'OTHER'}\n').\
                     replace('@#$%', ',').\
                     replace('   ', '\t')
                     
