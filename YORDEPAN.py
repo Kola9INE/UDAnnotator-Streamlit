@@ -188,7 +188,7 @@ def intro():
             st.markdown(
                 """
                 * https://universaldependencies.org
-                * O̩lájídé Ìshò̩lá & Daniel Zeman (2020), Yorùbá Dependency Treebank (YTB). _Proceedings of the 12th Conference on Language
+                * Ọlájídé Ìshọ̀lá & Daniel Zeman (2020), Yorùbá Dependency Treebank (YTB). _Proceedings of the 12th Conference on Language
                  Resources and Evaluation (LREC 2020), 5178-5186_.
                 * Mark-Jan Nederhof & Giorgio Satta (2010), Theory of Parsing. _The Handbook of Computational Linguistics and Natural
                  Language Processing_ 4(6):120-123.
@@ -201,7 +201,7 @@ def intro():
         st.markdown("""
                 * **THE UNIVERSITY OF IBADAN**
                 * Post Graduate Department of Computational Linguistics (2024/2025)
-                * Project undertaken by: Kó̩láwo̩lé Olúrántí Lawal (246389)
+                * Project undertaken by: Kọ́láwọlé Olúrántí Lawal (246389)
                 """)
 
 def annotate():
@@ -312,12 +312,12 @@ def annotate():
                         'FORM':[form],
                         'LEMMA':[lemma],
                         'UPOS':[upos],
-                        'XPOS':[xpos],
-                        'FEATS':[feat],
+                        'XPOS':[xpos] if xpos else ['_'],
+                        'FEATS':[feat] if feat else ['_'],
                         'HEAD':[head],
                         'DEPREL':[deprel],
-                        'DEPS':[deps] if deps != f'{head} : {deprel}' else ['_'],
-                        'MISC':[misc]
+                        'DEPS':[deps] if deps and deps != f'{head} : {deprel}' else ['_'],
+                        'MISC':[misc] if misc else ['_']
                         }
                     data = pd.DataFrame(df)
                     if 'DATA' not in st.session_state:
