@@ -11,7 +11,7 @@ UPOS = {'ADJ':'ADJECTIVE',
          'ADP':'ADPOSITION', 
          'ADV':'ADVERB', 
          'AUX':'AUXILLIARY', 
-         'CCONJ':'COORDIANTING CONJUNCTION', 
+         'CCONJ':'COORDINATING CONJUNCTION', 
          'DET':'DETERMINER', 
          'INTJ':'INTERJECTION', 
          'NOUN':'NOUN', 
@@ -202,6 +202,7 @@ def intro():
                 * **THE UNIVERSITY OF IBADAN**
                 * Post Graduate Department of Computational Linguistics (2024/2025)
                 * Project undertaken by: Kọ́láwọlé Olúrántí Lawal (246389)
+                * See further report on experiment at https://www.researchgate.net/publication/395833304_YORDEPAN_TOWARDS_YORUBA_DEPENDENCY_TREEBANK_CREATION/
                 """)
 
 def annotate():
