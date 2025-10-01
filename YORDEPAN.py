@@ -118,15 +118,13 @@ def intro():
                 Tokens of sentences are tagged in the format that have been universally agreed in the (UD) Universal Dependencies - a project that has successfully provided a universal
                 inventory of categories/tagsets to facilitate a concise cross-linguistic grammar formalism and easy comprehension by experts and non-specialists involved in this community-wide involvement (O̩lájídé Ìshò̩lá & Daniel Zeman, 2020). This format is named the CoNNL-U format, it highlights ten features per tokens in a document/sentence.
                 They include:
-                * **ID**: This is the index of an individual token in a document/sentence. The index of a token is usually `{x | x ϵ N and x ≤ len(sentence.split(' '))}`. Or simply put, the ID of a token:
-                    * must be a member of the set of Natural numbers.
-                    * must be lesser than the total amount of tokens in the sentence you want to annotate. **Please note that the punctuations are also regarded as a token.**
+                * **ID**: This is the index of an individual token in a document/sentence. The index of a token is usually `{x ∣ 1 ≤ x ≤ ∣V∣ }` where `V` is the set of tokens present in a sentence. **Please note that the punctuations are also regarded as a token.**
                 * **FORM**: This is usually the surface level representation of the token selected for annotation - as it is in the sentence. 
                 * **LEMMA**: This is the root form of the token selected. The lemma of a token is usually the dictionary form of the token selected. For example, the lemma of the token `running` is `run`.
                 * **UPOS**: This is the universally accepted Part-Of-Speech tag for the token selected. It is usually one of the provided 17 tags.
                 * **XPOS**: This is the language specific Part-Of-Speech tag for the token selected. If unknown, leave as `_`.
                 * **FEATS**: This is usually a list of morphological features of the token selected. It is usually written as **Attribute=Value** or -as in the case of two or more features- **Attribute=Value | Attribute=Value | Attribute=Value | etc...** E.g: `We` will be tagged as `Number=Plur|Person=1`.
-                * **HEAD**: This is usually the ID of the syntactic head (that is, the ID of the word that the selected token depends on). It is usually an integer and MUST be `0` if the `deprel` of the selected token is a `root`! Mathematically put, `x=0 iff deprel(token)==root`.
+                * **HEAD**: This is usually the ID of the syntactic head (that is, the ID of the word that the selected token depends on). It is usually an integer and MUST be `0` if the `deprel` of the selected token is a `ROOT`! Mathematically put, `{ x ∣ 0 ≤ x ≤ ∣V∣ ∧ (x=0 iff deprel(token)=root) }`
                 * **DEPREL**: This is usually the type of relation a token has to its syntactic head. It is usually one of the options provided in the app.
                 * **DEPS**: This is the extra dependency information. It is usually any other dependency that the selected token shares with another token and is usually represented as `HEAD:DEPREL` or as is the case of two or more "deps", we represent as `HEAD:DEPREL | HEAD:DEPREL`. This option can also be left as `_` if there is nothing.
                 * **MISC**: This is for any other information about the token selected for annotation. E.g `SpaceAfter=No` or `Typo=Yes` or `SpaceAfter=No | Typo=Yes`. You may also choose to leave this field at its default value of `_`.            
