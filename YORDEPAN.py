@@ -120,7 +120,7 @@ def intro():
                 They include:
                 * **ID**: This is the index of an individual token in a document/sentence. The index of a token is usually `{x ∣ 1 ≤ x ≤ ∣V∣ }` where `V` is the set of tokens present in a sentence. **Please note that the punctuations are also regarded as a token.**
                 * **FORM**: This is usually the surface level representation of the token selected for annotation - as it is in the sentence. 
-                * **LEMMA**: This is the root form of the token selected. The lemma of a token is usually the dictionary form of the token selected. For example, the lemma of the token `running` is `run`.
+                * **LEMMA**: This is the root form of the token selected and it is usually in lower case. The lemma of a token is usually the dictionary form of the token selected. For example, the lemma of the token `running` is `run`, `sáré` will have the lemma(s) `sá` and `eré`.
                 * **UPOS**: This is the universally accepted Part-Of-Speech tag for the token selected. It is usually one of the provided 17 tags.
                 * **XPOS**: This is the language specific Part-Of-Speech tag for the token selected. If unknown, leave as `_`.
                 * **FEATS**: This is usually a list of morphological features of the token selected. It is usually written as **Attribute=Value** or -as in the case of two or more features- **Attribute=Value | Attribute=Value | Attribute=Value | etc...** E.g: `We` will be tagged as `Number=Plur|Person=1`.
@@ -168,6 +168,8 @@ def intro():
                             * `Person`=`1` `(First person)`
                             * `Person`=`2` `(Second person)`
                             * `Person`=`3` `(Third person)`
+                            * `Polarity`=`Neg` `(Negation)`
+                            * `Polarity`=`Pos` `(Positive)`
                             * `Voice`=`Act` `(Active voice)`
                             * `Voice`=`Pass` `(Passive voice)`
                             * `Aspect`=`Perf` `(Perfect)`
