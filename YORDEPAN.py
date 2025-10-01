@@ -299,11 +299,11 @@ def annotate():
         deps = st.text_input('INPUT SECONDARY DEPENDENCY HERE:',
                              help='Enhanced dependency graph in the form of a list of head-deprel pairs. Please separate multiple dependencies with a |. For example; ***0 : acl | 3 : nsubj | 0 : csubj***',
                              value = '_')
-        misc = st.text_input('ANY OTHER ANNOTATION', value = '_' if not multi else f'MWE=YES|MWA={MWA}|MWEPOS={upos}')
+        misc = st.text_input('ANY OTHER ANNOTATION', value = '_' if not multi else f'MWE=YES|MWA={MWA}|MWEPOS={upos}') # type: ignore
         submit = st.form_submit_button('TAG')
         if submit:
             try:
-                if multi and len(lemma.strip().split(' ')) < MWA:
+                if multi and len(lemma.strip().split(' ')) < MWA: # type: ignore
                     st.warning(f'THE TOTAL NUMBER OF LEMMA DOESN\'T MATCH THE NUMBER OF TOKENS INDICATED. PLEASE CORRECT.')
                     st.stop()
                 elif (tokens[id-1] != form):
