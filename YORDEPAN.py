@@ -87,7 +87,7 @@ DEPREL = {'acl':'clausal modifier of noun (adnominal clause)',
                     'parataxis':'parataxis',
                     'punct':'punctuation',
                     'reparandum':'overriden disfluency',
-                    'root':'root',
+                    'ROOT':'root',
                     'vocative':'vocative',
                     'xcomp':'open clausal complement'}
 
