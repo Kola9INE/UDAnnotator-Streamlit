@@ -118,7 +118,7 @@ def intro():
                 Tokens of sentences are tagged in the format that have been universally agreed in the (UD) Universal Dependencies - a project that has successfully provided a universal
                 inventory of categories/tagsets to facilitate a concise cross-linguistic grammar formalism and easy comprehension by experts and non-specialists involved in this community-wide involvement (O̩lájídé Ìshò̩lá & Daniel Zeman, 2020). This format is named the CoNNL-U format, it highlights ten features per tokens in a document/sentence.
                 They include:
-                * **ID**: This is the index of an individual token in a document/sentence. The index of a token is usually `{x ∣ 1 ≤ x ≤ ∣V∣ }` where `V` is the set of tokens present in a sentence. **Please note that the punctuations are also regarded as a token.**
+                * **ID**: This is the index of an individual token in a document/sentence. The index of a token is usually `{x ∣ 1 ≤ x ≤ ∣V∣ }` where `V` is an ordered list of tokens present in a given sentence. **Please note that the punctuations are also regarded as a token.**
                 * **FORM**: This is usually the surface level representation of the token selected for annotation - as it is in the sentence. 
                 * **LEMMA**: This is the root form of the token selected and it is usually in lower case. The lemma of a token is usually the dictionary form of the token selected. For example, the lemma of the token `running` is `run`, `sáré` will have the lemma(s) `sá` and `eré`.
                 * **UPOS**: This is the universally accepted Part-Of-Speech tag for the token selected. It is usually one of the provided 17 tags.
@@ -273,6 +273,10 @@ def annotate():
 
     form = col2.selectbox('SELECT WORD TO TAG HERE', options = tokens if len(text.split(' '))>1 else text)
 
+    multi = col2.toggle(label='MULTITOKEN?', help = 'Tick this if the token you want to tag is a multiword token like `New York` or `sáré (sá + eré)`')
+    if multi:
+        MWA = col2.number_input(label = 'HOW MANY TOKENS MAKE UP THIS WORD?', min_value=2)
+
     with st.form(key='form', clear_on_submit=False, enter_to_submit=False, border=False):
         if not text and 'DATA' in st.session_state:
             del st.session_state.DATA
@@ -284,7 +288,7 @@ def annotate():
         except SVAME:
             id = st.number_input('SELECT ID HERE:', min_value=0, max_value=0)
         col1, col2, col3 = st.columns(3)
-        lemma = col1.text_input('ENTER LEMMA HERE', value = form.lower() if form else None)
+        lemma = col1.text_input('ENTER LEMMA HERE', value = form.lower() if form else '_')
         upos = col2.selectbox('SELECT UNIVERSAL PART OF SPEECH HERE:', options = UPOS, index = 0)
         xpos = col3.text_input('INPUT XPOS TAG HERE', value = '_')
         
@@ -295,17 +299,20 @@ def annotate():
         deps = st.text_input('INPUT SECONDARY DEPENDENCY HERE:',
                              help='Enhanced dependency graph in the form of a list of head-deprel pairs. Please separate multiple dependencies with a |. For example; ***0 : acl | 3 : nsubj | 0 : csubj***',
                              value = '_')
-        misc = st.text_input('ANY OTHER ANNOTATION', value = '_')
+        misc = st.text_input('ANY OTHER ANNOTATION', value = '_' if not multi else f'MWE=YES|MWA={MWA}|MWEPOS={upos}')
         submit = st.form_submit_button('TAG')
         if submit:
             try:
-                if (tokens[id-1] != form):
+                if multi and len(lemma.strip().split(' ')) < MWA:
+                    st.warning(f'THE TOTAL NUMBER OF LEMMA DOESN\'T MATCH THE NUMBER OF TOKENS INDICATED. PLEASE CORRECT.')
+                    st.stop()
+                elif (tokens[id-1] != form):
                     st.badge('Your ID and FORM does not match! Please correct.', color='red')
                     st.stop()
-                elif (deprel != 'root' and head == 0):
+                elif (deprel != 'ROOT' and head == 0):
                     st.warning('TRY AGAIN! ONLY TOKENS THAT ARE ROOTS SHOULD HAVE HEADS AS ZERO.')
                     st.stop()
-                elif (deprel == 'root' and head != 0):
+                elif (deprel == 'ROOT' and head != 0):
                     st.badge('ANY TOKEN TAGGED AS ROOT SHOULD HAVE THIER HEADS AS ZERO!', color ='red')
                     st.stop()
                 else:    
@@ -387,8 +394,8 @@ def annotate():
                     del st.session_state.DATA
                     sent = parse(st.session_state['CONLLU'])
                     with st.popover('Download Options'):
-                        st.download_button('As .conllu', st.session_state.CONLLU, file_name='unidep.conllu')
-                        st.download_button('As .txt', st.session_state.CONLLU, file_name='unidep.txt')
+                        st.download_button('As .conllu', st.session_state.CONLLU, file_name='dep.conllu')
+                        st.download_button('As .txt', st.session_state.CONLLU, file_name='dep.txt')
 
 if __name__ == "__main__":
     st.set_page_config(
