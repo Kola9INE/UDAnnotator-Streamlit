@@ -91,6 +91,40 @@ DEPREL = {'acl':'clausal modifier of noun (adnominal clause)',
                     'vocative':'vocative',
                     'xcomp':'open clausal complement'}
 
+FEAT = {'_':'UNKNOWN/NOT APPLICABLE',
+        'Case=Nom': 'Nominative',
+        'Case=Acc': 'Accusative', 
+        'Case=Gen': 'Genitive',
+        'Case=Dat': 'Dative',
+        'Gender=Masc': 'Masculine',
+        'Gender=Fem': 'Feminine',
+        'Gender=Neut': 'Neuter',
+        'Number=Sing': 'Singular',
+        'Number=Plur': 'Plural',
+        'Tense=Past': 'Past Tense',
+        'Tense=Pres': 'Present Tense',
+        'Tense=Fut': 'Future Tense',
+        'Tense=Non-Fut': 'Non-Future Tense',
+        'Mood=Ind': 'Indicative',
+        'Mood=Imp': 'Imperative',
+        'Mood=Sub': 'Subjunctive',
+        'Person=1': 'First person',
+        'Person=2': 'Second person',
+        'Person=3': 'Third person',
+        'Polarity=Neg': 'Negation',
+        'Polarity=Pos': 'Positive',
+        'Voice=Act': 'Active voice',
+        'Voice=Pass': 'Passive voice',
+        'Aspect=Perf': 'Perfect',
+        'Aspect=Imp': 'Imperfect',
+        'Degree=Pos': 'Positive',
+        'Degree=Cmp': 'Comparative',
+        'Degree=Sup': 'Superlative',
+        'Definite=Def': 'Definite',
+        'Definite=Ind': 'Indefinite',
+        'VerbType=Trans': 'Transitive',
+        'VerbType=Intr': 'Intransitive'}
+
 def tokenize(text:str):
     letters = [char for char in text]
     new = []
@@ -148,41 +182,8 @@ def intro():
             'E.G The token `I` may be tagged as `Person=1|Number=Sing` or `Person=1` or `Number=Sing`.')
             with st.expander('CLICK HERE TO SEE THE LIST OF POPULAR FEATURES. INFO IS DISPLAYED AS `<FEATURE>`=`<VALUE>` `(MEANING OF VALUE)`'):
                 st.write('**THESE ARE NOT THE ONLY FEATURES AVAILABLE, BUT THE MOST FREQUENTLY ENCOUNTERED**')
-                st.markdown("""
-                            * `Case`=`Nom` `(Nominative)`
-                            * `Case`=`Acc` `(Accusative)`
-                            * `Case`=`Gen` `(Genitive)`
-                            * `Case`=`Dat` `(Dative)`
-                            * `Gender`=`Masc` `(Masculine)`
-                            * `Gender`=`Fem` `(Feminine)`
-                            * `Gender`=`Neut` `(Neuter)`
-                            * `Number`=`Sing` `(Singular)`
-                            * `Number`=`Plur` `(Plural)`
-                            * `Tense`=`Past` `(Past Tense)`
-                            * `Tense`=`Pres` `(Present Tense)`
-                            * `Tense`=`Fut` `(Future Tense)`
-                            * `Tense`=`Non-Fut` `(Non-Future Tense)`
-                            * `Mood`=`Ind` `(Indicative)`
-                            * `Mood`=`Imp` `(Imperative)`
-                            * `Mood`=`Sub` `(Subjunctive)`
-                            * `Person`=`1` `(First person)`
-                            * `Person`=`2` `(Second person)`
-                            * `Person`=`3` `(Third person)`
-                            * `Polarity`=`Neg` `(Negation)`
-                            * `Polarity`=`Pos` `(Positive)`
-                            * `Voice`=`Act` `(Active voice)`
-                            * `Voice`=`Pass` `(Passive voice)`
-                            * `Aspect`=`Perf` `(Perfect)`
-                            * `Aspect`=`Imp` `(Imperfect)`
-                            * `Degree`=`Pos` `(Positive)`
-                            * `Degree`=`Cmp` `(Comparative)`
-                            * `Degree`=`Sup` `(Superlative)`
-                            * `Definite`=`Def` `(Definite)`
-                            * `Definite`=`Ind` `(Indefinite)`
-                            * `Definite`=`Def` `(Definite)`
-                            * `VerbType`=`Trans` `(Transitive)`
-                            * `VerbType`=`Intr` `(Intransitive)`
-""")
+                for i, j in FEAT.items():
+                    st.write(f'`{i}`:`{j}`')
     
         with st.expander('📚📖 REFERENCES AND FURTHER READINGS:'):
             st.markdown(
@@ -293,7 +294,7 @@ def annotate():
         xpos = col3.text_input('INPUT XPOS TAG HERE', value = '_')
         
         col1, col2, col3 = st.columns(3)
-        feat = col1.text_input('INPUT FEAT HERE:', value = '_')
+        feat = col1.multiselect(label='FEAT', options = FEAT if form.lower() else '', accept_new_options=True)
         head = col2.number_input('HEAD', min_value = 0, max_value=len(tokens))
         deprel = col3.selectbox('SELECT DEPENDENCY HERE:', options = DEPREL.keys())       
         deps = st.text_input('INPUT SECONDARY DEPENDENCY HERE:',
@@ -313,7 +314,7 @@ def annotate():
                     st.warning('TRY AGAIN! ONLY TOKENS THAT ARE ROOTS SHOULD HAVE HEADS AS ZERO.')
                     st.stop()
                 elif (deprel == 'ROOT' and head != 0):
-                    st.badge('ANY TOKEN TAGGED AS ROOT SHOULD HAVE THIER HEADS AS ZERO!', color ='red')
+                    st.badge('ANY TOKEN TAGGED AS ROOT SHOULD HAVE THEIR HEADS AS ZERO!', color ='red')
                     st.stop()
                 else:    
                     df = {'ID':[id],
@@ -321,10 +322,10 @@ def annotate():
                         'LEMMA':[lemma],
                         'UPOS':[upos],
                         'XPOS':[xpos] if xpos else ['_'],
-                        'FEATS':[feat] if feat else ['_'],
+                        'FEATS':['|'.join(feat)] if feat else ['_'],
                         'HEAD':[head],
                         'DEPREL':[deprel],
-                        'DEPS':[deps] if deps and deps != f'{head} : {deprel}' else ['_'],
+                        'DEPS':[deps] if deps and deps != f'{head}:{deprel}' else ['_'],
                         'MISC':[misc] if misc else ['_']
                         }
                     data = pd.DataFrame(df)
