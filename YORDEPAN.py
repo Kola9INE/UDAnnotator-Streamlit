@@ -275,7 +275,7 @@ def annotate():
 
     multi = col2.toggle(label='MULTITOKEN?', help = 'Tick this if the token you want to tag is a multiword token like `New York` or `sáré (sá + eré)`')
     if multi:
-        MWA = col2.number_input(label = 'HOW MANY TOKENS MAKE UP THIS WORD?', min_value=2)
+        MWA = col2.number_input(label = 'HOW MANY TOKENS MAKE UP THIS WORD?', min_value=2, help = 'This is the amount of tokens that make up the `FORM`. Note that this should tally with the amount of tokens you will input in the `LEMMA` box.')
 
     with st.form(key='form', clear_on_submit=False, enter_to_submit=False, border=False):
         if not text and 'DATA' in st.session_state:
