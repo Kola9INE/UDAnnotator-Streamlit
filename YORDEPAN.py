@@ -349,7 +349,7 @@ def annotate():
             new_df['ID'] = new_df['ID'].apply(lambda x:int(x))
             new_df['HEAD'] = new_df['HEAD'].apply(lambda x :int(x))
             st.write('EDITED TABLE:')
-            st.table(new_df)
+            st.dataframe(new_df)
             update = st.button('UPDATE')
             if update:
                 st.session_state.DATA = new_df
@@ -359,7 +359,7 @@ def annotate():
             del st.session_state.DATA['index']
             st.session_state.DATA['ID'] = st.session_state.DATA['ID'].apply(lambda x:int(x))
             st.session_state.DATA['HEAD'] = st.session_state.DATA['HEAD'].apply(lambda x :int(x))
-            st.table(st.session_state.DATA)
+            st.dataframe(st.session_state.DATA)
         
             cnlu = st.button('CONVERT', help='CONVERT YOUR TAGGED DATA TO CONLL-U FORMAT TO DOWNLOAD')
             if cnlu:
