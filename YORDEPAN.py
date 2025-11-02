@@ -2,11 +2,10 @@ import streamlit as st
 import pandas as pd
 from functools import reduce
 from datetime import datetime
-import string, json
+import string
 from time import sleep
 from conllu import parse
 from streamlit.errors import StreamlitValueAboveMaxError as SVAME
-from streamlit_js_eval import streamlit_js_eval
 
 UPOS = {'ADJ':'ADJECTIVE',
          'ADP':'ADPOSITION', 
@@ -127,38 +126,6 @@ FEAT = {'_':'UNKNOWN/NOT APPLICABLE',
         'VerbType=Trans': 'Transitive',
         'VerbType=Intr': 'Intransitive'}
 
-def save_conllu(text, key = 'try_get'):
-    '''
-    Retrieves whatever is in the localStorage, append the new conllu to it, resaves it to localstorage
-    '''
-    retrieve = streamlit_js_eval(js_expressions = 'localStorage.getItem("conllu");', default='', key = key)
-    if retrieve:
-        text += retrieve
-        streamlit_js_eval(js_expressions = f'localStorage.setItem("conllu", {json.dumps(text)})',
-                      key = 'save_conllu')     
-    else:
-        streamlit_js_eval(js_expressions = f'localStorage.setItem("conllu", {json.dumps(text)})',
-                      key = 'save_conllu')
-        
-    sleep(1.3)
-    # st.rerun()
-
-def show_conllu():
-    '''
-    If CONLLU exists in st.session_state, save it to localStorage, deletes CONLLU from session_state and gets conllu from localStorage
-
-    Returns: CONLLU annotations from localStorage
-    '''
-    if 'CONLLU' in st.session_state:
-        save_conllu(st.session_state.CONLLU)
-        del st.session_state.CONLLU
-    else:
-        pass
-    
-    history = streamlit_js_eval(js_expressions = 'localStorage.getItem("conllu")', default='EMPTY', key='get_conllu')
-    sleep(1.3)
-    return history
-
 def tokenize(text:str):
     letters = [char for char in text]
     new = []
@@ -241,8 +208,6 @@ def intro():
                 """)
 
 def annotate():
-    saved_text = streamlit_js_eval(js_expressions = 'localStorage.getItem("text");')
-
     with st.sidebar:
         st.write('You will be recognized in this effort, if only we know how to address you. You may choose to remain anonymous while tagging though.')
         anon = st.toggle('Turn off to be anonymous', value=True)
@@ -270,47 +235,31 @@ def annotate():
             else:
                 del st.session_state.SOURCE
                 SOURCE = st.session_state.SOURCE = source
-        '___'
-        st.warning('ONLY CLICK THE BELOW BUTTON TO CLEAR HISTORY!!!')
-        clear = st.button('SANITIZE')
-        if clear:
-            streamlit_js_eval(js_expressions = 'localStorage.clear();')
-            streamlit_js_eval(js_expressions = 'localStorage.removeItem("conllu")')
-            sleep(1)
-            st.toast('CLEARED ANNOTATION HISTORY!')
-            st.toast('PLEASE REFRESH PAGE')
-            st.rerun()
-
 
     st.write(f'**Hello {st.session_state.USER if 'USER' in st.session_state else '🥷🏽'},** DO NOT LEAVE THIS PAGE WHILE ANNOTATING TO AVOID THE RISK OF LOOSING YOUR DATA!')
-    file_bool = st.toggle('DO YOU WANT TO ADD TO EXISTING FILE(S)?', help='''Enable toggle to upload your file, you may upload a .txt or a .conllu file. 
-                          PLEASE MAKE SURE FILE CONTAINS ANNOTATION IN UD FORMAT! 
-                          Once file has been read successfully, you will receive notification at the top right of your screen.
-                          ''')
+    file_bool = st.toggle('DO YOU WANT TO ADD TO EXISTING FILE(S)?'.capitalize())
     if file_bool:
         files = st.file_uploader('ONLY .txt and .conllu files ARE ALLOWED!', type = ['conllu', 'txt'], accept_multiple_files=True)
-        if files:
-            try:
-                for file in files:
-                    content = file.getvalue().decode(encoding = 'utf-8')
-                    try:
-                        sent = parse(content)
-                        save_conllu(content)
-                        file.close()
-                        del file
-                    except:
-                        st.toast(f'COULDN\'T PARSE {file.name}')
-                st.toast('Read file successful. You may turn toggle OFF now.')
-                st.badge('YOU MAY TURN DISABLE READ FILE TOGGLE NOW, THANK YOU!')
-            except:
-                st.toast('YOUR FILE COULD NOT BE PARSED! CHECK FILE AND TRY AGAIN.')
+        process = st.button('PROCESS')
+        if process:
+            if files:
+                try:
+                    for file in files:
+                        content = file.getvalue().decode(encoding = 'utf-8')
+                        try:
+                            sent = parse(content)
+                            if 'CONLLU' not in st.session_state:
+                                st.session_state.CONLLU = content
+                            else:
+                                st.session_state.CONLLU+= content
+                        except:
+                            st.toast(f'COULDN\'T PARSE {file.name}')
+
+                except:
+                    st.toast('YOUR FILE COULD NOT BE PARSED! CHECK FILE AND TRY AGAIN.')
     '___'
     tokens = []
-    text = st.text_area('**INPUT TEXT HERE:**',
-                         placeholder='PLEASE ONLY INPUT ONE SENTENCE HERE. IT MAY BE SIMPLE, COMPOUND, COMPLEX OR COMPOUND-COMPLEX.',
-                         value = saved_text if saved_text else '')
-    if text:
-        streamlit_js_eval(js_expressions = f'localStorage.setItem("text", "{text}");')
+    text = st.text_area('**INPUT TEXT HERE:**', placeholder='PLEASE ONLY INPUT ONE SENTENCE HERE. IT MAY BE SIMPLE, COMPOUND, COMPLEX OR COMPOUND-COMPLEX.')
     button = st.button('ANNOTATE')
     col1, col2 = st.columns(2)
     if button:
@@ -353,7 +302,6 @@ def annotate():
                              help='Enhanced dependency graph in the form of a list of head-deprel pairs. Please separate multiple dependencies with a |. For example; ***0 : acl | 3 : nsubj | 0 : csubj***',
                              value = '_')
         misc = st.text_input('ANY OTHER ANNOTATION', value = '_' if not multi else f'MWE=YES|MWA={MWA}|MWEPOS={upos}') # type: ignore
-        
         submit = st.form_submit_button('TAG')
         if submit:
             try:
@@ -414,7 +362,7 @@ def annotate():
             st.session_state.DATA['HEAD'] = st.session_state.DATA['HEAD'].apply(lambda x :int(x))
             st.dataframe(st.session_state.DATA)
         
-            cnlu = st.button('CONVERT', help='CONVERT YOUR TAGGED DATA TO CONLL-U FORMAT TO DOWNLOAD', type = 'primary')
+            cnlu = st.button('CONVERT', help='CONVERT YOUR TAGGED DATA TO CONLL-U FORMAT TO DOWNLOAD', type='primary')
             if cnlu:
                 ID = list(st.session_state.DATA['ID'])
                 if len(ID) != len(tokens):
@@ -433,22 +381,16 @@ def annotate():
                     else:
                         st.session_state.CONLLU+= new
 
-                    if 'DATA' in st.session_state:
-                            del st.session_state['DATA']
-
-    rt_con = show_conllu()
-    if rt_con != 'EMPTY':
-        with st.expander('THERE HAPPENS TO BE EXISTING CONLLU IN STORAGE'):
-            st.badge('Further annotations will be appended to this document.')
-            st.code(rt_con)
-
-        with st.popover('Download Options'):
-            st.badge('DOWNLOAD AS:')
-            col1, col2 = st.columns(2)
-            col1.download_button('.conllu', rt_con, file_name='dep.conllu')
-            col2.download_button('.txt', rt_con, file_name='dep.txt')
-
-                        
+                    with st.expander('SEE YOUR .CONLLU DATA'):
+                        st.code(st.session_state.CONLLU)
+                    
+                    del st.session_state.DATA
+                    sent = parse(st.session_state['CONLLU'])
+                    with st.popover('Download Options'):
+                        st.badge('DOWNLOAD AS:')
+                        col1, col2 = st.columns(2)
+                        col1.download_button('.conllu', st.session_state.CONLLU, file_name='dep.conllu')
+                        col2.download_button('.txt', st.session_state.CONLLU, file_name='dep.txt')
 
 if __name__ == "__main__":
     st.set_page_config(
